@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Hit &amp; Avoid</title>
+
+  <script>var zon = true; // true for comments from zim code</script>
+  <script src="https://d309knd7es5f10.cloudfront.net/zim_4.1.2.js"></script>
+  <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+
+  <style>
+   body {margin:0px; padding:0px; background-color:"white";}
+   #myCanvas {position:absolute; background-color:"skyblue";}
+ </style>
+
+ <script>
+
+  var scaling = "fit"; 
+  var width = 768; 
+  var height = 1024;
+  var frame = new zim.Frame(scaling, width, height); 
+  frame.on("ready", function() {
+   zog("ready from ZIM Frame");
+   var stage = frame.stage;
+   var stageW = frame.width;
+   var stageH = frame.height;
+
+    var waiter = new zim.Waiter(stage);
+    waiter.show();
+
+   frame.loadAssets([
+    "닭강정.png",
+    "병아리.png",
+    "배경.png",
+    "bgm.mp3",
+    "pong.wav"
+    ], "assets/");
+
+
+///////////////////////////////////
+////////PUT ASSET ON STAGE/////////
+///////////////////////////////////
+
+   frame.on("complete", function() {
+    waiter.hide();
+
+    frame.asset("bgm.mp3").play({loop:-1});
+
+    var animation = new zim.Container(stageW, stageH);
+    stage.addChild(animation);
+
+    var backgroundPic = frame.asset("배경.png");
+    animation.addChild(backgroundPic);
+    var background = new zim.Scroller({backing:backgroundPic, speed:0});
+
+    var seal = frame.asset("병아리.png");
+    seal.scale(1.2)
+    seal.centerReg(stage);
+    seal.y= seal.y+200;
+
+    var ball = frame.asset("닭강정.png");
+    ball.centerReg(stage);
+    ball.y = seal.y-180;
+    ball.move({
+      x:ball.x,
+      y:seal.y-500,
+      time:500,
+      ease:"linear",
+      loop:true,
+      rewind:true,
+      call:function(){
+        frame.asset("pong.wav").play();
+      }
+
+
+    });
+
+
+///////////////////////////////////
+///////////////BUTTON//////////////
+///////////////////////////////////
+
+    var label = new zim.Label("START", 30, "verdana", "white");
+    var button = new zim.Button({ 
+      width: 200, 
+      height: 70, 
+      rollColor:"grey",
+      label: label,
+      color: "skyblue",
+      corner: 30,
+    }); 
+
+    button.centerReg(stage);
+    button.x = seal.x;
+    button.y = 920;
+
+    var label2 = new zim.Label("CLICK TO JUMP", 25, "verdana", "white");
+        stage.addChild(label2)
+        label2.centerReg(stage);
+        label2.y = 990;
+    
+    button.on("click", function() {
+            zgo("game.html");
+        })
+
+
+});
+   stage.update();
+ });
+
+
+</script>
+</head>
+
+<body>
+</body>
+</html>

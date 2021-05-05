@@ -1,0 +1,33 @@
+img.relative { 
+  position: relative;
+  top: 50px;
+  left: 1100px;
+}
+.tooltip {     
+  position: relative;   
+  display: inline-block; 
+  border-bottom: 1px dotted pink;     
+  font-weight:70pt; font-size:20pt;
+  top:200px;
+  left:1100px 
+  } 
+  .tooltip .tooltiptext { 
+      visibility: hidden;                
+      width: 700px; 
+      background-color: black;    
+      color: yellow; 
+      text-align: left;                  
+      border-radius: 6px; 
+      padding: 7px 7px;               
+      font-weight:70pt; 
+      font-size:15pt;                   
+      position: absolute;     
+      z-index: -1;                        
+      top: 100%;       
+      left: 50%; 
+      margin-left: -350px;            
+      line-height :25pt; 
+      } 
+  .tooltip:hover .tooltiptext { 
+      visibility: visible; 
+  } 

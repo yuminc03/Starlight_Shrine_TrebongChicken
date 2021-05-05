@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Hit &amp; Avoid</title>
+
+  <script>var zon = true; // true for comments from zim code</script>
+  <script src="https://d309knd7es5f10.cloudfront.net/zim_4.1.2.js"></script>
+  <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+
+  <style>
+   body {margin:0px; padding:0px; background-color:"white";}
+   #myCanvas {position:absolute; background-color:"skyblue";}
+ </style>
+
+ <script>
+
+  var scaling = "fit"; 
+  var width = 768; 
+  var height = 1024;
+  var frame = new zim.Frame(scaling, width, height); 
+  frame.on("ready", function() {
+   zog("ready from ZIM Frame");
+   var stage = frame.stage;
+   var stageW = frame.width;
+   var stageH = frame.height;
+
+   var waiter = new zim.Waiter(stage);
+   waiter.show();
+
+   frame.loadAssets([
+    "닭강정.png",
+    "닭강정2.png",
+    "탄강정.png",
+    "병아리.png",
+    "병아리2.png",
+    "구급차.png",
+    "배경.png",
+    "bgm.mp3",
+    "구급차소리.mp3"
+    ], "assets/");
+   frame.on("complete", function() {
+       waiter.hide();
+
+///////////////////////////////////
+//////////PUT ASSETS ON STAGE//////
+///////////////////////////////////
+
+frame.asset("bgm.mp3").play({loop:-1});
+var animation = new zim.Container(stageW, stageH);
+stage.addChild(animation);
+
+var backgroundPic = frame.asset("배경.png");
+animation.addChild(backgroundPic);
+var background = new zim.Scroller({backing:backgroundPic, speed:0});
+
+var seal = frame.asset("병아리.png");
+seal.scale(1.2)
+seal.centerReg(stage);
+seal.y= seal.y+200;
+
+var seal2 = frame.asset("병아리2.png");
+seal2.scale(1.2)
+seal2.centerReg();
+seal2.x = seal.x;
+seal2.y= seal.y;
+
+var b = frame.asset("구급차.png");
+b.scale(.5)
+b.centerReg();
+b.x = seal.x;
+b.y= seal.y-300;
+
+
+///////////////////////////////////
+/////////////CALCULATOR////////////
+///////////////////////////////////
+
+var icon = frame.asset("닭강정.png");
+icon.scale(.5);
+icon.centerReg(stage)
+icon.x = seal.x+200;
+icon.y = 80;
+stage.addChild(icon);
+
+var text = new createjs.Text("x", "50px Arial", "white");
+text.x = seal.x+240;
+text.y = 50;
+stage.addChild(text);
+
+var scorePanel = new zim.Container();
+stage.addChild(scorePanel);
+scorePanel.setBounds(0, 0, 60, 60);
+
+var scoreText = new zim.Label({
+  text:"0", 
+  size:50,
+  align:"center",
+  color:"white",
+});
+
+scoreText.center(scorePanel);
+scorePanel.x = seal.x+270;
+scorePanel.y = 50;
+
+
+///////////////////////////////////
+//////////////BUTTON///////////////
+///////////////////////////////////
+
+var label = new zim.Label("RESTART", 30, "verdana", "white");
+var button = new zim.Button({ 
+  width: 200, 
+  height: 80, 
+  rollColor:"grey",
+  label: label,
+  color: "skyblue",
+  corner: 30,
+}); 
+button.centerReg();
+button.x = seal.x;
+button.y = 940;
+
+button.on("click", function() {
+  zgo("start.html");
+})
+
+
+///////////////////////////////////
+/////////////KEYBORAD//////////////
+///////////////////////////////////
+stage.on("stagemousedown",jump, null,false)
+// window.addEventListener("keydown", jump)
+function jump(ev) {
+  // var ev = ev || event;
+  // var  code= ev.keyCode;
+  // if (code == 32){
+  //   window.removeEventListener("keydown", jump);
+    zim.move({
+     target:seal,
+     y:seal.y-150,
+     time:200,
+     ease:"quadOut",
+     props:{rewind:true},
+     // call: function(){
+     //   window.addEventListener("keydown", jump);
+     // }
+   });
+  };
+// };
+stage.on("stagemousedown",startGame,null,true)
+// window.addEventListener("keydown", startGame);
+function startGame() {
+ // window.removeEventListener("keydown", startGame);
+ zim.Ticker.add(remove,stage);
+ moveBall();
+};
+
+
+///////////////////////////////////
+/////////////MOVEBALL//////////////
+///////////////////////////////////   
+
+var num = 1000;
+var left = 0;
+var right = 768;
+var start = [left,right]
+
+var bomb = frame.asset("탄강정.png");
+bomb.centerReg();
+bomb.scale(.5);
+
+var bell = frame.asset("닭강정.png");
+bell.centerReg();
+var array = [bomb, bell];
+var balls = new zim.Container();
+stage.addChild(balls)
+
+function moveBall() {
+  setTimeout(function() {
+    requestAnimationFrame(moveBall);
+    for(var i=0; i<num; i++) {
+      var rand = zim.rand(0,1);
+      var rand2 = zim.rand(0,1);
+      var ball = array[rand];
+      ball.x = start[rand2];
+      ball.y = zim.rand(seal.y-250,seal.y-400);
+    }
+    balls.addChild(ball);
+    if(ball.x == left){
+       bound = 768+ball.width/2,
+       fly = zim.rand(500,668),
+       over = seal.x+200
+    }else{
+       bound = ball.width/2,
+       fly = zim.rand(68,200),
+       over = seal.x-200
+    }
+    zim.animate(ball,{x:bound,y:seal.y-220,rotation:ball.rotation+360},zim.rand(800,1000),"back",bounce);
+  },2000);
+};
+
+function bounce(){
+ zim.animate(ball,{x:bound,y:900,rotation:ball.rotation+360},1000,"bounce", function(t){
+   balls.removeChild(t)});
+ if(ball==bell){
+  zim.animate(ball,{x:over,y:900,rotation:ball.rotation+360},1000,"bounce");
+  stage.addChild(button);
+  setTimeout(function(){stage.removeChild(balls)},1000);
+};
+}
+
+///////////////////////////////////
+/////////////HITTEST//////////////
+///////////////////////////////////
+
+function remove(){
+ for (var i=0; i<balls.numChildren; i++) {
+  ball = balls.getChildAt(i);
+  if(ball == bell){
+    if(seal.hitTestBounds(ball)){
+     zim.animate(ball,{x:fly,y:0,rotation:ball.rotation+360},500,"bounce",function(t){
+      balls.removeChild(t)
+      scoreText.text++;
+    }); 
+   }
+ }else{
+  if(seal.hitTestBounds(ball)){
+    frame.asset("구급차소리.mp3").play();
+    stage.removeChild(seal,balls);
+    stage.addChild(seal2,b,button); 
+  }    
+};
+};
+
+};
+});
+stage.update();
+});
+
+
+</script>
+</head>
+
+<body>
+</body>
+</html>
